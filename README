@@ -1,0 +1,12 @@
+Interactive FutureLearn course download
+
+This uses latex.css to display as college textbook
+
+
+Problems: Maths formula not downloaded correctly
+
+Usage:
+
+Edit script or environment variables FL_EMAIL and FL_PASSWORD to futurelearn login variable. It will then prompt the programmes that you are enrolled in and download them to the output directory. Opening the files in the output directory will use the latex.css to format the programmes as printable books using the browser. Easier than direct PDF.
+
+
