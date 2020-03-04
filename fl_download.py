@@ -11,27 +11,30 @@ import sys, os, errno
 import requests
 import json
 
-from tqdm import tqdm
+from tqdm import tqdm           # progress indicator for updates
 from lxml import html
 from bs4 import BeautifulSoup
+import string                    # for punctuation in filenames
+# import youtube_dl
 
 # Setup Variable
 
-SIGNIN_URL = 'https://www.futurelearn.com/sign-in'
-PROGRAMME_PAGE_URL = 'https://www.futurelearn.com/your-programs'
+SIGNIN_URL          = 'https://www.futurelearn.com/sign-in'
+PROGRAMME_PAGE_URL  = 'https://www.futurelearn.com/your-programs'
 
 # Test Values
-COURSE_ID="data-analytics-and-data-mining"
-COURSE_RUN=1
+COURSE_ID           = "data-analytics-and-data-mining"
+COURSE_RUN          = 1
 
 defaultHeaders = {
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36',
     'content-type': 'application/json',
 }
 
-TMP_DIR = os.getenv('TMP_DIR', default='./Output')
-OP_DIR  = os.getenv('OP_DIR',  default='./Output')
+TMP_DIR = os.getenv('TMP_DIR', default='./Output/')
+OP_DIR  = os.getenv('OP_DIR',  default='./Output/')
 DOWNLOAD_YOUTUBE = False
+DOWNLOAD_PDF = True
 
 # set username and password
 email = os.getenv('FL_EMAIL', default='username@mail.dcu.ie')
@@ -199,8 +202,12 @@ print("Complete")
 # Write HTML Body to output file
 
 #outputFilename = currentCourse['chapter'] + '-' + os.path.basename(link) + '.html'
-outputFilename = course_id + '.html'
+outputFilename = OP_DIR + course_id + '.html'
 print (outputFilename)
+
+import os
+if not os.path.exists(OP_DIR):
+    os.makedirs(OP_DIR)
 
 file = open(outputFilename, "w", encoding='utf-8')
 
@@ -266,7 +273,6 @@ print("Complete")
 # !pip install --upgrade youtube-dl
 #video = stepSoup.findAll('iframe',{'id':'ytplayer'})[0]['src']
 if DOWNLOAD_YOUTUBE:
-    import youtube_dl
 
     ydl_opts = {}
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -274,6 +280,25 @@ if DOWNLOAD_YOUTUBE:
             ydl.download([video])
 
 
+
+if DOWNLOAD_PDF:
+    bodySoup = BeautifulSoup(outputHTMLBody,'lxml')
+
+    for result in bodySoup.find_all(lambda tag: tag.name in ['h3', 'div'] ):
+        if result.name == 'h3':
+            title = result.text
+
+        for atag in result.findAll('a'):
+            link = atag.get('href')
+            if link.endswith('pdf'):
+                sFilename = str(OP_DIR + title + '.pdf')
+                remove_punctuation_map = dict((ord(char), None) for char in  string.punctuation)
+                sFilename.translate(remove_punctuation_map)
+
+                # Download the PDF Files from Programme
+                print('Downloading' , sFilename, ' from ', link)
+                myfile = requests.get(link,allow_redirects=True, verify=False)
+                open(sFilename, 'wb').write(myfile.content)
 
 
 
