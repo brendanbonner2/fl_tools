@@ -9,4 +9,7 @@ Usage:
 
 Edit script or environment variables FL_EMAIL and FL_PASSWORD to futurelearn login variable. It will then prompt the programmes that you are enrolled in and download them to the output directory. Opening the files in the output directory will use the latex.css to format the programmes as printable books using the browser. Easier than direct PDF.
 
+There are two variables inthe script (haven't bothered to make it fully cli friendly, as you can run it in colab without much modification. They are:
+DOWNLOAD_YOUTUBE and DOWNLOAD_PDF
+which, as expected, download all the referred  to PDF and youtube videos in the programme locally which is handy for travelling. Only basic files will be downloaded, i.e. no redirects on ResearchGate.
 
