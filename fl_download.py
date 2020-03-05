@@ -23,7 +23,6 @@ SIGNIN_URL          = 'https://www.futurelearn.com/sign-in'
 PROGRAMME_PAGE_URL  = 'https://www.futurelearn.com/your-programs'
 
 # Test Values
-COURSE_ID           = "data-analytics-and-data-mining"
 COURSE_RUN          = 1
 
 defaultHeaders = {
@@ -33,8 +32,10 @@ defaultHeaders = {
 
 TMP_DIR = os.getenv('TMP_DIR', default='./Output/')
 OP_DIR  = os.getenv('OP_DIR',  default='./Output/')
+
 DOWNLOAD_YOUTUBE = False
-DOWNLOAD_PDF = True
+DOWNLOAD_PDF = False
+DOWNLOAD_COLABS = False
 
 # set username and password
 email = os.getenv('FL_EMAIL', default='username@mail.dcu.ie')
@@ -61,7 +62,7 @@ soup = BeautifulSoup(fl_response.content, 'lxml')
 login_data['authenticity_token'] = soup.find("input", attrs={"name": "authenticity_token"})['value']
 login_rsp = fl_session.post(SIGNIN_URL, data=login_data)
 
-print(login_rsp)
+# print(login_rsp)
 
 # List the programmes that you are signed up to
 
@@ -83,8 +84,8 @@ for i in range(0,len(programmeList)):
 
     # ask which programme to download
 
-print('Enter Programme Number:')
-a = int(input()) - 1
+a = int(input('Enter Programme Number : ')) - 1
+
 if ( a < len(programmeList)) and (a >= 0):
     
     a -= 1
@@ -112,7 +113,7 @@ for data in soup.find_all('div', attrs={'class':'m-heads-up-banner__text'}):
     for a in data.find_all('a'):
         programmeTitle = a.text #for getting text between the link
 
-print(programmeTitle)
+# print(programmeTitle)
 
 steps = soup.findAll('div',attrs={'class': 'm-overview__step-row'})
 
@@ -193,11 +194,6 @@ for currentCourse in tqdm(courseList):
         outputHTMLBody += str(stepContent)
         ToCList.append(currentCourse)
         prevSection = currSection
-
-
-print("Complete")
-
-
 
 # Write HTML Body to output file
 
@@ -299,6 +295,60 @@ if DOWNLOAD_PDF:
                 print('Downloading' , sFilename, ' from ', link)
                 myfile = requests.get(link,allow_redirects=True, verify=False)
                 open(sFilename, 'wb').write(myfile.content)
+
+#taken from this StackOverflow answer: https://stackoverflow.com/a/39225039
+import requests
+
+def download_file_from_google_drive(id, destination):
+    URL = "https://docs.google.com/uc?export=download"
+
+    session = requests.Session()
+
+    response = session.get(URL, params = { 'id' : id }, stream = True)
+    token = get_confirm_token(response)
+
+    if token:
+        params = { 'id' : id, 'confirm' : token }
+        response = session.get(URL, params = params, stream = True)
+
+    save_response_content(response, destination)    
+
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            return value
+
+    return None
+
+def save_response_content(response, destination):
+    CHUNK_SIZE = 32768
+
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(CHUNK_SIZE):
+            if chunk: # filter out keep-alive new chunks
+                f.write(chunk)
+
+if DOWNLOAD_COLABS:
+    colabList = []
+    allTextSoup  = BeautifulSoup(outputHTMLBody, 'lxml')
+    googleDriveLinks = allTextSoup.findAll('a')
+    for colabLink in googleDriveLinks:
+        current_link = colabLink.get('href')
+        if 'drive.google.com' in current_link:
+            colabList.append(current_link)
+        #Sample google colab link: https://drive.google.com/open?id=1Um0HlegnHXVUHctZYJfcH3ctd_9CTfdU
+
+    print('Downloading', len(colabList), 'Colabs')
+    gFilenameNumber = 1
+    for gFile in tqdm(colabList):
+        if '=' in gFile:
+            gFilename = 'Colab_' + course_id + '_' + f"{gFilenameNumber:03d}" + '.ipynb'
+            download_file_from_google_drive(gFile.split('=')[1],'Colabs/' + gFilename)
+            gFilenameNumber += 1
+
+
+print("Complete")
+
 
 
 
