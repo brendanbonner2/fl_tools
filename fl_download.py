@@ -9,7 +9,7 @@ import json
 
 from tqdm import tqdm           # progress indicator for updates
 from lxml import html
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 import string                    # for punctuation in filenames
 # import youtube_dl
 
@@ -195,6 +195,27 @@ for currentCourse in tqdm(courseList):
         ToCList.append(currentCourse)
         prevSection = currSection
 
+
+
+# Strip all maths tags that don't work
+outputHTMLSoup = BeautifulSoup(outputHTMLBody,'lxml')
+def strip_tags(scriptSoup):
+    for tag in scriptSoup.findAll('script', attrs={'type':'math/tex'}):
+        s = ""
+        for c in tag.contents:
+            if not isinstance(c, NavigableString):
+                c = strip_tags(unicode(c), invalid_tags)
+            s += c
+        tag.replaceWith(s)
+    
+    return scriptSoup
+
+for i in outputHTMLSoup.findAll('script', attrs={'type':'math/tex'}):
+    newString = '\(' + (i.string) + '\)'
+    i.string = newString
+
+outputHTMLBody = str(strip_tags(outputHTMLSoup))
+
 # Write HTML Body to output file
 
 #outputFilename = currentCourse['chapter'] + '-' + os.path.basename(link) + '.html'
@@ -251,8 +272,6 @@ file.write(latexHeader)
 outputHTMLTitle = '<h1>' + programmeTitle + '</h1>'
 
 file.write(outputHTMLTitle)
-
-
 file.write(outputHTMLBody)
 
 if INCLUDE_TOC:
@@ -263,8 +282,6 @@ if INCLUDE_TOC:
   
 # Finish File
 file.write('</body></html>')
-
-print("Complete")
 
 # Download all refernced youtube videos
 # !pip install --upgrade youtube-dl
