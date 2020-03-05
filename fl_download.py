@@ -39,7 +39,6 @@ DOWNLOAD_PDF = True
 # set username and password
 email = os.getenv('FL_EMAIL', default='username@mail.dcu.ie')
 password = os.getenv('FL_PASSWORD', default='')
-print('Using: ', email)
 
 # FutureLearn login dataset
 
@@ -56,12 +55,17 @@ login_data = {
 # Login to futurelearn (no error checking, so check headers!)
 fl_session = requests.Session()
 fl_response = fl_session.get(SIGNIN_URL)
+
 soup = BeautifulSoup(fl_response.content, 'lxml')
 
 login_data['authenticity_token'] = soup.find("input", attrs={"name": "authenticity_token"})['value']
 login_rsp = fl_session.post(SIGNIN_URL, data=login_data)
 
-print(login_rsp)
+# If you cannot login, then quit at this stage
+if login_rsp.status_code != 200:
+    print('Cannot login using : ' + email)
+    quit(-1)
+
 
 # List the programmes that you are signed up to
 
