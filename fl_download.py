@@ -254,7 +254,7 @@ latexHeader = """
           width: 210mm;
           /* height: 297mm; */
           height: 282mm;
-          font-size: 11px;
+          /* font-size: 11px; */
           background: #FFF;
           overflow:visible;
       }
