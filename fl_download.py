@@ -14,7 +14,6 @@ import string                    # for punctuation in filenames
 # import youtube_dl
 
 # Setup Variable
-
 SIGNIN_URL          = 'https://www.futurelearn.com/sign-in'
 PROGRAMME_PAGE_URL  = 'https://www.futurelearn.com/your-programs'
 
@@ -65,16 +64,12 @@ if login_rsp.status_code != 200:
 
 
 # List the programmes that you are signed up to
-
-# get programme page
 programmeContent = fl_session.get(PROGRAMME_PAGE_URL)
 programmeSoup = BeautifulSoup(programmeContent.content, 'lxml')
 
 # list all programmes as [number][programmme name][programme id]
-
 programmeList = []
 for data in programmeSoup.find_all('h2', attrs={'class':'m-program-block__heading'}):
-    #print(data)
     for a in data.find_all('a'):
         programmeList.append([a['href'].split('/')[-2],
                               a.text.replace('\n',' ').strip()]) #for getting text between the link
@@ -105,23 +100,13 @@ print(COURSE_URL)
 pageContent = fl_session.get(COURSE_URL)
 
 # todo - split the index into 'Topics' to match the courses
-
-# Now break out the course weeks into links
 soup = BeautifulSoup(pageContent.content, 'lxml')
 
 for data in soup.find_all('div', attrs={'class':'m-heads-up-banner__text'}):
     for a in data.find_all('a'):
         programmeTitle = a.text #for getting text between the link
 
-# print(programmeTitle)
-
-steps = soup.findAll('div',attrs={'class': 'm-overview__step-row'})
-
 courseList = []
-course = {
-    'chapter':'',
-    'title':''
-}
 
 for step in soup.findAll('div',attrs={'class': 'm-overview__step-row'}):
     course = {}
@@ -146,17 +131,14 @@ COURSE_BASE='https://www.futurelearn.com'
 
 outputHTMLBody = ""
 
-# Print Header Information
-
+# Initialise the local variables
 videoList = []
 ToCList = []
+prevSection = 0 #reset chapter
+currTopic = 0
 
 # write the name of the course
 outputHTMLTitle = '<h1>' + programmeTitle + '</h1>'
-
-
-prevSection = 0 #reset chapter
-currTopic = 0
 
 for currentCourse in tqdm(courseList):
 
@@ -174,8 +156,7 @@ for currentCourse in tqdm(courseList):
         videoList.append(video['src'])
         video.decompose()
     
-
-    #print(stepSoup.title)
+    # next stage is to find the content body, and give it a title based on the topic list
     stepContent = stepSoup.find('div',{'class':'u-typography-bold-intro'})
     #stepContent.prettify()
     if stepContent:
@@ -217,12 +198,11 @@ for i in outputHTMLSoup.findAll('script', attrs={'type':'math/tex'}):
 outputHTMLBody = str(strip_tags(outputHTMLSoup))
 
 # Write HTML Body to output file
-
 #outputFilename = currentCourse['chapter'] + '-' + os.path.basename(link) + '.html'
 outputFilename = OP_DIR + course_id + '.html'
+outputHTMLTitle = '<h1>' + programmeTitle + '</h1>'
 print (outputFilename)
 
-import os
 if not os.path.exists(OP_DIR):
     os.makedirs(OP_DIR)
 
@@ -269,7 +249,6 @@ latexHeader = """
   """
 
 file.write(latexHeader)
-outputHTMLTitle = '<h1>' + programmeTitle + '</h1>'
 
 file.write(outputHTMLTitle)
 file.write(outputHTMLBody)
@@ -287,7 +266,6 @@ file.write('</body></html>')
 # !pip install --upgrade youtube-dl
 #video = stepSoup.findAll('iframe',{'id':'ytplayer'})[0]['src']
 if DOWNLOAD_YOUTUBE:
-
     ydl_opts = {}
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         for video in videoList:
