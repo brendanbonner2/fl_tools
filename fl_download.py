@@ -97,11 +97,9 @@ else:
 print ('Setting programme to', programmeList[a][1])
 
 course_id = programmeList[a][0]
-print(course_id)
 
 # Now we have the programme - get the programme index
 COURSE_URL='{}/{}/{}'.format(PROGRAMME_PAGE_URL,course_id, 1)
-print(COURSE_URL)
 
 pageContent = fl_session.get(COURSE_URL)
 
@@ -140,7 +138,7 @@ for data in soup.findAll('div', attrs={'class':'compactCard-wrapper_1nofF'}):
 			courseList.append(course)
 
 
-print('{} Course Steps Identified'.format(len(courseList)))
+print('{} Steps Identified in {} Courses'.format(len(courseList), len(topicList)))
  
 
 #now get a course and filter it
