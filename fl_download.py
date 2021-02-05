@@ -12,7 +12,10 @@ from tqdm import tqdm           # progress indicator for updates
 from lxml import html
 from bs4 import BeautifulSoup, NavigableString
 import string                    # for punctuation in filenames
-# import youtube_dl
+import youtube_dl
+
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Setup Variable
 SIGNIN_URL          = 'https://www.futurelearn.com/sign-in'
@@ -30,9 +33,9 @@ defaultHeaders = {
 OP_DIR  = os.getenv('OP_DIR',  default='./Output/')
 
 INCLUDE_TOC = False
-DOWNLOAD_YOUTUBE = False
-DOWNLOAD_PDF = False
-DOWNLOAD_COLABS = False
+DOWNLOAD_YOUTUBE = True
+DOWNLOAD_PDF = True
+DOWNLOAD_COLABS = True
 
 # set username and password
 email = os.getenv('FL_EMAIL', default='username@mail.dcu.ie')
@@ -308,10 +311,14 @@ if DOWNLOAD_PDF:
 				remove_punctuation_map = dict((ord(char), None) for char in  string.punctuation)
 				sFilename.translate(remove_punctuation_map)
 
-				# Download the PDF Files from Programme
-				print('Downloading' , sFilename, ' from ', link)
-				myfile = requests.get(link,allow_redirects=True, verify=False)
-				open(sFilename, 'wb').write(myfile.content)
+        # Download the PDF Files from Programme
+        print('Downloading' , sFilename, ' from ', link)
+
+        try:
+             myfile = requests.get(link,allow_redirects=True, verify=False)
+             open(sFilename, 'wb').write(myfile.content)
+        except requests.exceptions.RequestException as e:  # This is the correct syntax
+             print('Error downloading: ', sFilename)
 
 #taken from this StackOverflow answer: https://stackoverflow.com/a/39225039
 import requests
