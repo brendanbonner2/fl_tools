@@ -6,6 +6,7 @@ FutureLearn Downloader
 import sys, os, errno
 import requests
 import json
+import re
 
 from tqdm import tqdm           # progress indicator for updates
 from lxml import html
@@ -199,12 +200,18 @@ for currentCourse in tqdm(courseList):
 # Strip all maths tags that don't work
 outputHTMLSoup = BeautifulSoup(outputHTMLBody,'lxml')
 def strip_tags(scriptSoup):
+    #strip out all invalid math/tex
 	for tag in scriptSoup.findAll('script', attrs={'type':'math/tex'}):
 		s = ""
 		for c in tag.contents:
 			if not isinstance(c, NavigableString):
 				c = strip_tags(unicode(c), invalid_tags)
 			s += c
+		tag.replaceWith(s)
+
+	# strip out all Skillnet images
+	for tag in scriptSoup.findAll('img',{'alt': re.compile(r'Skillnet Ireland')}):
+		s = ""
 		tag.replaceWith(s)
 	
 	return scriptSoup
