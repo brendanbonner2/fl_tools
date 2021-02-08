@@ -41,15 +41,11 @@ DOWNLOAD_COLABS = True
 email = os.getenv('FL_EMAIL', default='username@mail.dcu.ie')
 password = os.getenv('FL_PASSWORD', default='')
 
-
-email = os.getenv('FL_EMAIL', default='bonnerb2@mail.dcu.ie')
-password = os.getenv('FL_PASSWORD', default='dublinK3rr1l33')
-
 # FutureLearn login dataset
 
 login_data = {
 	"authenticity_token" : "",
-#    "utf8": '✓',
+    "utf8": '✓',
 	"return": '',
 	"title": '',
 	"email": email,
