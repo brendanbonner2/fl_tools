@@ -201,7 +201,7 @@ for currentCourse in tqdm(courseList):
 # Strip all maths tags that don't work
 outputHTMLSoup = BeautifulSoup(outputHTMLBody,'lxml')
 def strip_tags(scriptSoup):
-    #strip out all invalid math/tex
+	#strip out all invalid math/tex
 	for tag in scriptSoup.findAll('script', attrs={'type':'math/tex'}):
 		s = ""
 		for c in tag.contents:
@@ -311,14 +311,14 @@ if DOWNLOAD_PDF:
 				remove_punctuation_map = dict((ord(char), None) for char in  string.punctuation)
 				sFilename.translate(remove_punctuation_map)
 
-        # Download the PDF Files from Programme
-        print('Downloading' , sFilename, ' from ', link)
+		# Download the PDF Files from Programme
+		print('Downloading' , sFilename, ' from ', link)
 
-        try:
-             myfile = requests.get(link,allow_redirects=True, verify=False)
-             open(sFilename, 'wb').write(myfile.content)
-        except requests.exceptions.RequestException as e:  # This is the correct syntax
-             print('Error downloading: ', sFilename)
+		try:
+			 myfile = requests.get(link,allow_redirects=True, verify=False)
+			 open(sFilename, 'wb').write(myfile.content)
+		except requests.exceptions.RequestException as e:  # This is the correct syntax
+			 print('Error downloading: ', sFilename)
 
 #taken from this StackOverflow answer: https://stackoverflow.com/a/39225039
 import requests
