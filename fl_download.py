@@ -315,10 +315,11 @@ if DOWNLOAD_PDF:
 				print('Downloading' , sFilename, ' from ', link)
 
 				try:
-					myfile = requests.get(link,allow_redirects=True, verify=False)
-					open(sFilename, 'wb').write(myfile.content)
-				except requests.exceptions.RequestException as e:  # This is the correct syntax
-					print('Error downloading: ', sFilename)
+					# You need to have Output directory for PDFs
+					pdfFile = requests.get(link,allow_redirects=True, verify=False)
+					open(sFilename, 'wb').write(pdfFile.content)
+				except requests.exceptions.RequestException as e:
+					print('Could not downloading: ', sFilename)
 
 #taken from this StackOverflow answer: https://stackoverflow.com/a/39225039
 import requests
