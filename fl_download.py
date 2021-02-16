@@ -113,7 +113,7 @@ programmeTitle = course_id
 topicList = []
 courseList = []
 
-for data in soup.findAll('div', attrs={'class':'compactCard-wrapper_1nofF'}):
+for data in soup.findAll('div', attrs={'class':re.compile('compactCard-wrapper_*')}):
 	COURSE_URL='{}/{}'.format(FUTURELEARN_URL,data.a['href'])
 	# print(COURSE_URL)
 	
@@ -124,7 +124,7 @@ for data in soup.findAll('div', attrs={'class':'compactCard-wrapper_1nofF'}):
 	courseSoup = BeautifulSoup(courseContent.content, 'lxml')
 
 	### get the links to the number of weeks, and sort them
-	for weeks in courseSoup.find_all(class_ ="RunProgress-item_2NUyR"):
+	for weeks in courseSoup.find_all(class_ =re.compile("RunProgress-item_*")):
 		WEEK_URL = '{}/{}'.format(FUTURELEARN_URL,weeks.a.get('href'))
 		weekContent = fl_session.get(WEEK_URL)
 		courseSoup = BeautifulSoup(weekContent.content, 'lxml')
