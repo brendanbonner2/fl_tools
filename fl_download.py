@@ -1,4 +1,6 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+
+# # -*- coding: utf-8 -*-
 """
 FutureLearn Downloader
 """
@@ -32,17 +34,32 @@ defaultHeaders = {
 
 OP_DIR  = os.getenv('OP_DIR',  default='./Output/')
 
-INCLUDE_TOC = False
-DOWNLOAD_YOUTUBE = True
-DOWNLOAD_PDF = True
-DOWNLOAD_COLABS = True
+# Parse command line arguements for options
+import argparse
+
 
 # set username and password
 email = os.getenv('FL_EMAIL', default='username@mail.dcu.ie')
 password = os.getenv('FL_PASSWORD', default='')
 
-# FutureLearn login dataset
+parser = argparse.ArgumentParser(description='FutureLearn Course Downloader')
+parser.add_argument("--youtube",action='store_true', help="Download YouTube Links")
+parser.add_argument("--pdf",  action='store_true', help="Download PDF Files found in Links")
+parser.add_argument("--colabs",  action='store_true', help="Download Google Colabs Files found in Links")
+parser.add_argument("--username", default=email, type=str, required = False, help="FutureLearn Email")
+parser.add_argument("--password", default=password, type=str, required = False, help="Download Google Colabs as Notebooks")
 
+args = parser.parse_args()
+
+INCLUDE_TOC = False
+DOWNLOAD_YOUTUBE = args.youtube
+DOWNLOAD_PDF = args.pdf
+DOWNLOAD_COLABS = args.colabs
+
+email = args.username
+password = args.password
+
+# FutureLearn login dataset
 login_data = {
 	"authenticity_token" : "",
     "utf8": '✓',
@@ -298,7 +315,7 @@ if DOWNLOAD_PDF:
 
 	for result in bodySoup.find_all(lambda tag: tag.name in ['h3', 'div'] ):
 		if result.name == 'h3':
-			title = result.text
+			title = result.text.replace('\n','').replace('\u2003',' ')
 
 		for atag in result.findAll('a'):
 			link = atag.get('href')
