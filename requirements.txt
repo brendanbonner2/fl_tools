@@ -1,4 +1,4 @@
-lxml==4.6.1
+lxml==4.6.2
 youtube_dl==2021.2.22
 tqdm==4.50.2
 urllib3==1.25.11
