@@ -1,6 +1,6 @@
 lxml==4.6.1
 youtube_dl==2021.2.22
 tqdm==4.50.2
-urllib3==1.25.11
+urllib3==1.26.5
 requests==2.24.0
 beautifulsoup4==4.9.3
